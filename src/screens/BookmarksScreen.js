@@ -91,18 +91,20 @@ const BookmarksScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.white,
   },
   header: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.white,
     paddingTop: 50,
     paddingBottom: 16,
     paddingHorizontal: SIZES.padding,
+    alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: '700',
-    color: COLORS.white,
+    color: COLORS.darkGray,
+    letterSpacing: 1.5,
   },
   listContent: {
     paddingTop: SIZES.paddingSmall,

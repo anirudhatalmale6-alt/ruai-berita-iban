@@ -4,14 +4,19 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
+  Image,
   StyleSheet,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import SearchBar from '../components/SearchBar';
-import ArticleCard from '../components/ArticleCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { searchPosts } from '../services/api';
 import { COLORS, SIZES } from '../constants/theme';
+
+const formatDate = (dateStr) => {
+  const date = new Date(dateStr);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+};
 
 const SearchScreen = ({ navigation }) => {
   const [results, setResults] = useState([]);
@@ -58,13 +63,37 @@ const SearchScreen = ({ navigation }) => {
     }
   };
 
+  const renderArticle = ({ item }) => (
+    <TouchableOpacity
+      style={styles.articleCard}
+      onPress={() => navigation.navigate('Article', { article: item })}
+      activeOpacity={0.9}
+    >
+      {item.image ? (
+        <Image source={{ uri: item.image }} style={styles.articleImage} />
+      ) : (
+        <View style={[styles.articleImage, styles.placeholderImage]}>
+          <Text style={styles.placeholderText}>RBI</Text>
+        </View>
+      )}
+      <View style={styles.articleContent}>
+        <Text style={styles.articleTitle} numberOfLines={3}>{item.title}</Text>
+        <Text style={styles.articleExcerpt} numberOfLines={2}>{item.excerpt}</Text>
+        <View style={styles.articleMeta}>
+          <Text style={styles.articleAuthor}>{item.author}</Text>
+          <Text style={styles.articleDate}>{formatDate(item.date)}</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={COLORS.white} />
+          <Ionicons name="arrow-back" size={24} color={COLORS.darkGray} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Pansik</Text>
+        <Text style={styles.headerTitle}>SEARCH</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -81,18 +110,14 @@ const SearchScreen = ({ navigation }) => {
       ) : (
         <FlatList
           data={results}
-          renderItem={({ item }) => (
-            <ArticleCard
-              article={item}
-              onPress={() => navigation.navigate('Article', { article: item })}
-            />
-          )}
+          renderItem={renderArticle}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.listContent}
           onEndReached={loadMore}
           onEndReachedThreshold={0.3}
           ListFooterComponent={loadingMore ? <LoadingSpinner size="small" /> : null}
           showsVerticalScrollIndicator={false}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
       )}
     </View>
@@ -102,31 +127,83 @@ const SearchScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.white,
   },
   header: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.white,
     paddingTop: 50,
     paddingBottom: 12,
     paddingHorizontal: SIZES.paddingSmall,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
   },
   backBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: COLORS.white,
+    fontSize: 16,
+    fontWeight: '700',
+    color: COLORS.darkGray,
+    letterSpacing: 1,
   },
   listContent: {
-    paddingTop: SIZES.paddingSmall,
+    paddingTop: 0,
+  },
+  separator: {
+    height: 8,
+    backgroundColor: '#f0f0f0',
+  },
+  articleCard: {
+    backgroundColor: COLORS.white,
+  },
+  articleImage: {
+    width: '100%',
+    height: 200,
+  },
+  placeholderImage: {
+    backgroundColor: COLORS.darkGray,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderText: {
+    color: COLORS.white,
+    fontSize: 24,
+    fontWeight: '700',
+  },
+  articleContent: {
+    padding: SIZES.padding,
+  },
+  articleTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: COLORS.text,
+    lineHeight: 23,
+    marginBottom: 4,
+  },
+  articleExcerpt: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    lineHeight: 20,
+    marginBottom: 8,
+  },
+  articleMeta: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  articleAuthor: {
+    fontSize: 12,
+    color: COLORS.primary,
+    fontWeight: '600',
+  },
+  articleDate: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
   },
   emptyContainer: {
     flex: 1,

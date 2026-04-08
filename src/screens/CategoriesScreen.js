@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,12 +6,17 @@ import {
   TouchableOpacity,
   StyleSheet,
   RefreshControl,
+  Image,
+  ScrollView,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import ArticleCard from '../components/ArticleCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { fetchCategories, fetchPosts } from '../services/api';
 import { COLORS, SIZES } from '../constants/theme';
+
+const formatDate = (dateStr) => {
+  const date = new Date(dateStr);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+};
 
 const CategoriesScreen = ({ navigation }) => {
   const [categories, setCategories] = useState([]);
@@ -88,11 +93,35 @@ const CategoriesScreen = ({ navigation }) => {
     }
   };
 
+  const renderArticle = ({ item }) => (
+    <TouchableOpacity
+      style={styles.articleCard}
+      onPress={() => navigation.navigate('Article', { article: item })}
+      activeOpacity={0.9}
+    >
+      {item.image ? (
+        <Image source={{ uri: item.image }} style={styles.articleImage} />
+      ) : (
+        <View style={[styles.articleImage, styles.placeholderImage]}>
+          <Text style={styles.placeholderText}>RBI</Text>
+        </View>
+      )}
+      <View style={styles.articleContent}>
+        <Text style={styles.articleTitle} numberOfLines={3}>{item.title}</Text>
+        <Text style={styles.articleExcerpt} numberOfLines={2}>{item.excerpt}</Text>
+        <View style={styles.articleMeta}>
+          <Text style={styles.articleAuthor}>{item.author}</Text>
+          <Text style={styles.articleDate}>{formatDate(item.date)}</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
   if (loading) {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Kategori</Text>
+          <Text style={styles.headerTitle}>CATEGORIES</Text>
         </View>
         <LoadingSpinner />
       </View>
@@ -102,15 +131,18 @@ const CategoriesScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Kategori</Text>
+        <Text style={styles.headerTitle}>CATEGORIES</Text>
       </View>
 
       <View style={styles.categoryBar}>
-        <FlatList
+        <ScrollView
           horizontal
-          data={categories}
-          renderItem={({ item }) => (
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoryList}
+        >
+          {categories.map((item) => (
             <TouchableOpacity
+              key={item.id}
               style={[
                 styles.categoryChip,
                 selectedCategory?.id === item.id && styles.categoryChipActive,
@@ -123,7 +155,7 @@ const CategoriesScreen = ({ navigation }) => {
                   selectedCategory?.id === item.id && styles.categoryTextActive,
                 ]}
               >
-                {item.name}
+                {item.name.toUpperCase()}
               </Text>
               <Text
                 style={[
@@ -134,11 +166,8 @@ const CategoriesScreen = ({ navigation }) => {
                 {item.count}
               </Text>
             </TouchableOpacity>
-          )}
-          keyExtractor={(item) => item.id.toString()}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoryList}
-        />
+          ))}
+        </ScrollView>
       </View>
 
       {postsLoading ? (
@@ -146,26 +175,22 @@ const CategoriesScreen = ({ navigation }) => {
       ) : (
         <FlatList
           data={posts}
-          renderItem={({ item }) => (
-            <ArticleCard
-              article={item}
-              onPress={() => navigation.navigate('Article', { article: item })}
-            />
-          )}
+          renderItem={renderArticle}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.listContent}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              colors={[COLORS.primary]}
-              tintColor={COLORS.primary}
+              colors={[COLORS.darkGray]}
+              tintColor={COLORS.darkGray}
             />
           }
           onEndReached={loadMore}
           onEndReachedThreshold={0.3}
           ListFooterComponent={loadingMore ? <LoadingSpinner size="small" /> : null}
           showsVerticalScrollIndicator={false}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>Nadai berita dalam kategori tu</Text>
@@ -180,18 +205,20 @@ const CategoriesScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.white,
   },
   header: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.white,
     paddingTop: 50,
     paddingBottom: 16,
     paddingHorizontal: SIZES.padding,
+    alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: '700',
-    color: COLORS.white,
+    color: COLORS.darkGray,
+    letterSpacing: 1.5,
   },
   categoryBar: {
     backgroundColor: COLORS.white,
@@ -212,12 +239,13 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   categoryChipActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.darkGray,
   },
   categoryText: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '700',
     color: COLORS.text,
+    letterSpacing: 0.5,
   },
   categoryTextActive: {
     color: COLORS.white,
@@ -233,11 +261,61 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   categoryCountActive: {
-    color: COLORS.primary,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    color: COLORS.darkGray,
+    backgroundColor: 'rgba(255,255,255,0.8)',
   },
   listContent: {
-    paddingTop: SIZES.paddingSmall,
+    paddingTop: 0,
+  },
+  separator: {
+    height: 8,
+    backgroundColor: '#f0f0f0',
+  },
+  articleCard: {
+    backgroundColor: COLORS.white,
+  },
+  articleImage: {
+    width: '100%',
+    height: 200,
+  },
+  placeholderImage: {
+    backgroundColor: COLORS.darkGray,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderText: {
+    color: COLORS.white,
+    fontSize: 24,
+    fontWeight: '700',
+  },
+  articleContent: {
+    padding: SIZES.padding,
+  },
+  articleTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: COLORS.text,
+    lineHeight: 23,
+    marginBottom: 4,
+  },
+  articleExcerpt: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    lineHeight: 20,
+    marginBottom: 8,
+  },
+  articleMeta: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  articleAuthor: {
+    fontSize: 12,
+    color: COLORS.primary,
+    fontWeight: '600',
+  },
+  articleDate: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
   },
   emptyContainer: {
     padding: 40,

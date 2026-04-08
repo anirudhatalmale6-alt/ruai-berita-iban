@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -72,11 +72,11 @@ const ArticleScreen = ({ route, navigation }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerBtn} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={COLORS.white} />
+          <Ionicons name="arrow-back" size={24} color={COLORS.darkGray} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>Berita</Text>
+        <Text style={styles.headerTitle} numberOfLines={1}>ARTICLE</Text>
         <TouchableOpacity style={styles.headerBtn} onPress={handleShare}>
-          <Ionicons name="share-outline" size={22} color={COLORS.white} />
+          <Ionicons name="share-outline" size={22} color={COLORS.darkGray} />
         </TouchableOpacity>
       </View>
 
@@ -123,13 +123,15 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
   },
   header: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.white,
     paddingTop: 50,
     paddingBottom: 12,
     paddingHorizontal: SIZES.paddingSmall,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
   },
   headerBtn: {
     width: 40,
@@ -139,11 +141,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: COLORS.white,
+    fontSize: 16,
+    fontWeight: '700',
+    color: COLORS.darkGray,
     flex: 1,
     textAlign: 'center',
+    letterSpacing: 1,
   },
   scrollView: {
     flex: 1,

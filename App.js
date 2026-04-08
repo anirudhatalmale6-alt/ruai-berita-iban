@@ -54,7 +54,7 @@ const TabNavigator = () => (
 export default function App() {
   return (
     <NavigationContainer>
-      <StatusBar style="light" backgroundColor={COLORS.primary} />
+      <StatusBar style="dark" backgroundColor={COLORS.white} />
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Main" component={TabNavigator} />
         <Stack.Screen
