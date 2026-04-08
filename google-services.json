@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "876348327870",
+    "project_id": "ruai-berita-iban",
+    "storage_bucket": "ruai-berita-iban.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:876348327870:android:a21de9e9928dbf2f59dbef",
+        "android_client_info": {
+          "package_name": "my.ruaiberitaiban.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrv3w-VKumihC2UFo08kglKpl4pvwdXzA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
