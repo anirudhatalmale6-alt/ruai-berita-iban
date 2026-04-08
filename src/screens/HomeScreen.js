@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -34,6 +34,7 @@ const HomeScreen = ({ navigation }) => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
   const [showMenu, setShowMenu] = useState(false);
+  const flatListRef = useRef(null);
 
   const loadCategories = useCallback(async () => {
     try {
@@ -126,7 +127,11 @@ const HomeScreen = ({ navigation }) => {
                 <Ionicons name="close" size={24} color={COLORS.white} />
               </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.menuItem} onPress={() => { setShowMenu(false); }}>
+            <TouchableOpacity style={styles.menuItem} onPress={() => {
+              setShowMenu(false);
+              flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+              onRefresh();
+            }}>
               <Text style={styles.menuItemText}>HOME</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.menuItem} onPress={() => { setShowMenu(false); navigation.navigate('About'); }}>
@@ -199,6 +204,7 @@ const HomeScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <FlatList
+        ref={flatListRef}
         data={posts}
         renderItem={renderArticle}
         keyExtractor={(item) => item.id.toString()}
