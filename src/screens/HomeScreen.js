@@ -33,6 +33,7 @@ const HomeScreen = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
+  const [showMenu, setShowMenu] = useState(false);
 
   const loadCategories = useCallback(async () => {
     try {
@@ -101,7 +102,7 @@ const HomeScreen = ({ navigation }) => {
   const renderHeader = () => (
     <View>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.menuBtn}>
+        <TouchableOpacity style={styles.menuBtn} onPress={() => setShowMenu(true)}>
           <Ionicons name="menu" size={26} color={COLORS.darkGray} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Berita Tebaru</Text>
@@ -116,6 +117,27 @@ const HomeScreen = ({ navigation }) => {
       <View style={styles.brandRow}>
         <Text style={styles.brandName}>Ruai Berita Iban</Text>
       </View>
+
+      {showMenu && (
+        <TouchableOpacity style={styles.menuOverlay} activeOpacity={1} onPress={() => setShowMenu(false)}>
+          <View style={styles.menuDrawer}>
+            <View style={styles.menuHeader}>
+              <TouchableOpacity onPress={() => setShowMenu(false)}>
+                <Ionicons name="close" size={24} color={COLORS.white} />
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity style={styles.menuItem} onPress={() => { setShowMenu(false); }}>
+              <Text style={styles.menuItemText}>HOME</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem} onPress={() => { setShowMenu(false); navigation.navigate('About'); }}>
+              <Text style={styles.menuItemText}>ABOUT US</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem}>
+              <Text style={styles.menuSubText}>Privacy Policy</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      )}
     </View>
   );
 
@@ -238,11 +260,50 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
+    alignItems: 'center',
   },
   brandName: {
     fontSize: 15,
     fontWeight: '600',
     color: COLORS.darkGray,
+  },
+  menuOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    zIndex: 100,
+  },
+  menuDrawer: {
+    width: '75%',
+    height: '100%',
+    backgroundColor: '#888888',
+  },
+  menuHeader: {
+    paddingTop: 50,
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  menuItem: {
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    borderBottomWidth: 0.5,
+    borderBottomColor: 'rgba(255,255,255,0.2)',
+  },
+  menuItemText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: COLORS.white,
+  },
+  menuSubText: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.8)',
+    paddingLeft: 16,
   },
   listContent: {
     paddingBottom: 10,

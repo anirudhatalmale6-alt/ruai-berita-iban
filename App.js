@@ -11,6 +11,7 @@ import ArticleScreen from './src/screens/ArticleScreen';
 import SearchScreen from './src/screens/SearchScreen';
 import CategoriesScreen from './src/screens/CategoriesScreen';
 import BookmarksScreen from './src/screens/BookmarksScreen';
+import AboutScreen from './src/screens/AboutScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -65,6 +66,11 @@ export default function App() {
         <Stack.Screen
           name="Search"
           component={SearchScreen}
+          options={{ animation: 'slide_from_right' }}
+        />
+        <Stack.Screen
+          name="About"
+          component={AboutScreen}
           options={{ animation: 'slide_from_right' }}
         />
       </Stack.Navigator>
