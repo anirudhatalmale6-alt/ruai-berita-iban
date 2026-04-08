@@ -36,7 +36,12 @@ const CategoriesScreen = ({ navigation }) => {
   const loadCategories = async () => {
     try {
       const cats = await fetchCategories();
-      const filtered = cats.filter(c => c.count > 0);
+      const filtered = cats
+        .filter(c => c.count > 0 && c.slug !== 'perintahsarawak')
+        .map(c => ({
+          ...c,
+          name: c.slug === 'newsiban' ? 'Ruai Berita Iban' : c.name,
+        }));
       setCategories(filtered);
       if (filtered.length > 0) {
         selectCategory(filtered[0]);

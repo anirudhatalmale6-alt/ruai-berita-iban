@@ -38,7 +38,12 @@ const HomeScreen = ({ navigation }) => {
   const loadCategories = useCallback(async () => {
     try {
       const cats = await fetchCategories();
-      const filtered = cats.filter(c => c.count > 0);
+      const filtered = cats
+        .filter(c => c.count > 0 && c.slug !== 'perintahsarawak')
+        .map(c => ({
+          ...c,
+          name: c.slug === 'newsiban' ? 'Ruai Berita Iban' : c.name,
+        }));
       setCategories(filtered);
     } catch (err) {
       // silently fail
@@ -100,7 +105,7 @@ const HomeScreen = ({ navigation }) => {
         <TouchableOpacity style={styles.menuBtn}>
           <Ionicons name="menu" size={26} color={COLORS.darkGray} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>LATEST NEWS</Text>
+        <Text style={styles.headerTitle}>Berita Tebaru</Text>
         <TouchableOpacity
           style={styles.searchBtn}
           onPress={() => navigation.navigate('Search')}
@@ -156,7 +161,7 @@ const HomeScreen = ({ navigation }) => {
         <Text style={styles.articleExcerpt} numberOfLines={2}>{item.excerpt}</Text>
         <View style={styles.articleMeta}>
           <Text style={styles.articleCategory}>
-            {categories.find(c => item.categories.includes(c.id))?.name || 'News'}
+            {categories.find(c => item.categories.includes(c.id))?.name || 'Ruai Berita Iban'}
           </Text>
           <Text style={styles.articleDate}>{formatDate(item.date)}</Text>
         </View>
