@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "Ruai Berita Iban",
+    "slug": "ruai-berita-iban",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#910e31"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "my.ruaiberitaiban.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#910e31"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "my.ruaiberitaiban.app"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#910e31"
+        }
+      ]
+    ]
+  }
+}
