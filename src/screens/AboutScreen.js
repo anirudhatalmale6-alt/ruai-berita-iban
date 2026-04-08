@@ -59,7 +59,7 @@ const AboutScreen = ({ navigation }) => {
 
         <Text style={styles.sectionTitle}>Privacy Policy</Text>
         <Text style={styles.description}>
-          Kami ngormati privasi pengguna kami. App tu enda nyimpan data peribadi nuan.
+          Kami nyaga privasi pengguna kami. App tu enda nyimpan data peribadi nuan.
         </Text>
 
         <Text style={styles.version}>Version 1.0.0</Text>
