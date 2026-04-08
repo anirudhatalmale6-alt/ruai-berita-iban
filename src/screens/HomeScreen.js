@@ -7,7 +7,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -114,32 +113,9 @@ const HomeScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      {categories.length > 0 && (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoryContainer}
-        >
-          {categories.map((cat) => (
-            <TouchableOpacity
-              key={cat.id}
-              style={[
-                styles.categoryTab,
-                selectedCategory === cat.id && styles.categoryTabActive,
-              ]}
-              onPress={() => selectCategory(cat.id)}
-            >
-              <View style={styles.categoryImageContainer}>
-                <View style={styles.categoryOverlay}>
-                  <Text style={styles.categoryName}>
-                    {cat.name.toUpperCase()}
-                  </Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      )}
+      <View style={styles.brandRow}>
+        <Text style={styles.brandName}>Ruai Berita Iban</Text>
+      </View>
     </View>
   );
 
@@ -257,41 +233,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  categoryContainer: {
+  brandRow: {
     paddingHorizontal: SIZES.padding,
     paddingVertical: 10,
-    gap: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
   },
-  categoryTab: {
-    width: 140,
-    height: 70,
-    borderRadius: 8,
-    overflow: 'hidden',
-    marginRight: 10,
-    backgroundColor: COLORS.darkGray,
-  },
-  categoryTabActive: {
-    borderWidth: 2,
-    borderColor: COLORS.primary,
-  },
-  categoryImageContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  categoryOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  categoryName: {
-    color: COLORS.white,
-    fontWeight: '700',
-    fontSize: 13,
-    letterSpacing: 0.5,
-    textAlign: 'center',
+  brandName: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: COLORS.darkGray,
   },
   listContent: {
     paddingBottom: 10,
