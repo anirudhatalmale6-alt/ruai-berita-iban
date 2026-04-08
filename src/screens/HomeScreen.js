@@ -10,7 +10,9 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import LoadingSpinner from '../components/LoadingSpinner';
+import AdBanner from '../components/AdBanner';
 import { fetchPosts, fetchCategories } from '../services/api';
+import { showInterstitialAd } from '../services/ads';
 import { COLORS, SIZES } from '../constants/theme';
 
 const CATEGORY_IMAGES = {
@@ -122,11 +124,20 @@ const HomeScreen = ({ navigation }) => {
   );
 
   const renderArticle = ({ item, index }) => (
-    <TouchableOpacity
-      style={styles.articleCard}
-      onPress={() => navigation.navigate('Article', { article: item })}
-      activeOpacity={0.9}
-    >
+    <View>
+      {index > 0 && index % 3 === 0 && (
+        <View style={styles.adContainer}>
+          <AdBanner />
+        </View>
+      )}
+      <TouchableOpacity
+        style={styles.articleCard}
+        onPress={() => {
+          showInterstitialAd();
+          navigation.navigate('Article', { article: item });
+        }}
+        activeOpacity={0.9}
+      >
       {item.image ? (
         <Image source={{ uri: item.image }} style={styles.articleImage} />
       ) : (
@@ -145,6 +156,7 @@ const HomeScreen = ({ navigation }) => {
         </View>
       </View>
     </TouchableOpacity>
+    </View>
   );
 
   const renderFooter = () => {
@@ -324,6 +336,11 @@ const styles = StyleSheet.create({
   separator: {
     height: 8,
     backgroundColor: '#f0f0f0',
+  },
+  adContainer: {
+    paddingVertical: 8,
+    backgroundColor: '#f0f0f0',
+    alignItems: 'center',
   },
   articleCard: {
     backgroundColor: COLORS.white,

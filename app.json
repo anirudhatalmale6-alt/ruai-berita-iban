@@ -35,6 +35,12 @@
           "icon": "./assets/notification-icon.png",
           "color": "#910e31"
         }
+      ],
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-9592355687689566~6018428298"
+        }
       ]
     ]
   }

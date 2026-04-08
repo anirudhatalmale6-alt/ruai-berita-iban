@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import RenderHtml from 'react-native-render-html';
+import AdBanner from '../components/AdBanner';
 import { COLORS, SIZES } from '../constants/theme';
 
 const formatDate = (dateStr) => {
@@ -111,6 +112,10 @@ const ArticleScreen = ({ route, navigation }) => {
             tagsStyles={tagsStyles}
             enableExperimentalMarginCollapsing={true}
           />
+
+          <View style={styles.adContainer}>
+            <AdBanner />
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -186,6 +191,10 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: COLORS.border,
     marginBottom: 16,
+  },
+  adContainer: {
+    marginTop: 20,
+    alignItems: 'center',
   },
 });
 

@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Notifications from 'expo-notifications';
 import { COLORS } from './src/constants/theme';
 import { registerForPushNotifications } from './src/services/notifications';
+import { initInterstitialAds } from './src/services/ads';
 
 import HomeScreen from './src/screens/HomeScreen';
 import ArticleScreen from './src/screens/ArticleScreen';
@@ -61,6 +62,7 @@ export default function App() {
 
   useEffect(() => {
     registerForPushNotifications();
+    initInterstitialAds();
 
     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
       console.log('Notification received:', notification);
