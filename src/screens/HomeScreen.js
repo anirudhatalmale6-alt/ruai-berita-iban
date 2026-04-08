@@ -118,31 +118,6 @@ const HomeScreen = ({ navigation }) => {
       <View style={styles.brandRow}>
         <Text style={styles.brandName}>Ruai Berita Iban</Text>
       </View>
-
-      {showMenu && (
-        <TouchableOpacity style={styles.menuOverlay} activeOpacity={1} onPress={() => setShowMenu(false)}>
-          <View style={styles.menuDrawer}>
-            <View style={styles.menuHeader}>
-              <TouchableOpacity onPress={() => setShowMenu(false)}>
-                <Ionicons name="close" size={24} color={COLORS.white} />
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity style={styles.menuItem} onPress={() => {
-              setShowMenu(false);
-              flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
-              onRefresh();
-            }}>
-              <Text style={styles.menuItemText}>HOME</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} onPress={() => { setShowMenu(false); navigation.navigate('About'); }}>
-              <Text style={styles.menuItemText}>ABOUT US</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem}>
-              <Text style={styles.menuSubText}>Privacy Policy</Text>
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
-      )}
     </View>
   );
 
@@ -224,6 +199,38 @@ const HomeScreen = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
+
+      {showMenu && (
+        <TouchableOpacity
+          style={styles.menuOverlay}
+          activeOpacity={1}
+          onPress={() => setShowMenu(false)}
+        >
+          <TouchableOpacity activeOpacity={1} style={styles.menuDrawer}>
+            <View style={styles.menuHeader}>
+              <TouchableOpacity onPress={() => setShowMenu(false)}>
+                <Ionicons name="close" size={24} color={COLORS.white} />
+              </TouchableOpacity>
+            </View>
+            <TouchableOpacity style={styles.menuItem} onPress={() => {
+              setShowMenu(false);
+              flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+              onRefresh();
+            }}>
+              <Text style={styles.menuItemText}>HOME</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem} onPress={() => {
+              setShowMenu(false);
+              navigation.navigate('About');
+            }}>
+              <Text style={styles.menuItemText}>ABOUT US</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem}>
+              <Text style={styles.menuSubText}>Privacy Policy</Text>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
