@@ -40,21 +40,29 @@ export const registerForPushNotifications = async () => {
   }
 
   try {
-    const token = await Notifications.getExpoPushTokenAsync({
-      projectId: 'ruai-berita-iban',
-    });
-    console.log('Push token:', token.data);
-    return token.data;
+    const deviceToken = await Notifications.getDevicePushTokenAsync();
+    console.log('FCM token:', deviceToken.data);
+
+    // Subscribe to 'news' topic for auto notifications
+    try {
+      await fetch(
+        `https://iid.googleapis.com/iid/v1/${deviceToken.data}/rel/topics/news`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: 'key=AIzaSyBrv3w-VKumihC2UFo08kglKpl4pvwdXzA',
+          },
+        }
+      );
+      console.log('Subscribed to news topic');
+    } catch (subErr) {
+      console.log('Topic subscription error:', subErr);
+    }
+
+    return deviceToken.data;
   } catch (error) {
     console.log('Error getting push token:', error);
-    try {
-      const fcmToken = await Notifications.getDevicePushTokenAsync();
-      console.log('FCM token:', fcmToken.data);
-      return fcmToken.data;
-    } catch (fcmError) {
-      console.log('Error getting FCM token:', fcmError);
-      return null;
-    }
+    return null;
   }
 };
 
