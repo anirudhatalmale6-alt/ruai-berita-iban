@@ -24,7 +24,9 @@ const formatDate = (dateStr) => {
 const ArticleScreen = ({ route, navigation }) => {
   const { article } = route.params;
   const { width } = useWindowDimensions();
-  const contentWidth = width - SIZES.padding * 2;
+  const isTablet = width >= 600;
+  const maxContentWidth = isTablet ? 680 : width;
+  const contentWidth = maxContentWidth - SIZES.padding * 2;
 
   const tagsStyles = {
     body: {
@@ -83,14 +85,14 @@ const ArticleScreen = ({ route, navigation }) => {
 
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, isTablet && { alignItems: 'center' }]}
         showsVerticalScrollIndicator={false}
       >
         {article.image && (
-          <Image source={{ uri: article.image }} style={styles.heroImage} />
+          <Image source={{ uri: article.image }} style={[styles.heroImage, isTablet && { maxWidth: 680, alignSelf: 'center', borderRadius: 12, marginTop: 16 }]} />
         )}
 
-        <View style={styles.articleContent}>
+        <View style={[styles.articleContent, isTablet && { maxWidth: 680, width: '100%' }]}>
           <Text style={styles.title}>{article.title}</Text>
 
           <View style={styles.metaContainer}>

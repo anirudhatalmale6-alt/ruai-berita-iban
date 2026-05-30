@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import SearchBar from '../components/SearchBar';
@@ -19,6 +20,9 @@ const formatDate = (dateStr) => {
 };
 
 const SearchScreen = ({ navigation }) => {
+  const { width } = useWindowDimensions();
+  const isTablet = width >= 600;
+  const numColumns = isTablet ? 2 : 1;
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -64,27 +68,29 @@ const SearchScreen = ({ navigation }) => {
   };
 
   const renderArticle = ({ item }) => (
-    <TouchableOpacity
-      style={styles.articleCard}
-      onPress={() => navigation.navigate('Article', { article: item })}
-      activeOpacity={0.9}
-    >
-      {item.image ? (
-        <Image source={{ uri: item.image }} style={styles.articleImage} />
-      ) : (
-        <View style={[styles.articleImage, styles.placeholderImage]}>
-          <Text style={styles.placeholderText}>RBI</Text>
+    <View style={isTablet ? { flex: 1/numColumns, paddingHorizontal: 6 } : undefined}>
+      <TouchableOpacity
+        style={[styles.articleCard, isTablet && styles.articleCardTablet]}
+        onPress={() => navigation.navigate('Article', { article: item })}
+        activeOpacity={0.9}
+      >
+        {item.image ? (
+          <Image source={{ uri: item.image }} style={[styles.articleImage, isTablet && { height: 160 }]} />
+        ) : (
+          <View style={[styles.articleImage, styles.placeholderImage, isTablet && { height: 160 }]}>
+            <Text style={styles.placeholderText}>RBI</Text>
+          </View>
+        )}
+        <View style={styles.articleContent}>
+          <Text style={[styles.articleTitle, isTablet && { fontSize: 15 }]} numberOfLines={3}>{item.title}</Text>
+          <Text style={styles.articleExcerpt} numberOfLines={2}>{item.excerpt}</Text>
+          <View style={styles.articleMeta}>
+            <Text style={styles.articleAuthor}>{item.author}</Text>
+            <Text style={styles.articleDate}>{formatDate(item.date)}</Text>
+          </View>
         </View>
-      )}
-      <View style={styles.articleContent}>
-        <Text style={styles.articleTitle} numberOfLines={3}>{item.title}</Text>
-        <Text style={styles.articleExcerpt} numberOfLines={2}>{item.excerpt}</Text>
-        <View style={styles.articleMeta}>
-          <Text style={styles.articleAuthor}>{item.author}</Text>
-          <Text style={styles.articleDate}>{formatDate(item.date)}</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </View>
   );
 
   return (
@@ -109,15 +115,18 @@ const SearchScreen = ({ navigation }) => {
         </View>
       ) : (
         <FlatList
+          key={numColumns}
           data={results}
           renderItem={renderArticle}
           keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={styles.listContent}
+          numColumns={numColumns}
+          contentContainerStyle={[styles.listContent, isTablet && { paddingHorizontal: 10 }]}
+          columnWrapperStyle={isTablet ? { marginBottom: 12 } : undefined}
           onEndReached={loadMore}
           onEndReachedThreshold={0.3}
           ListFooterComponent={loadingMore ? <LoadingSpinner size="small" /> : null}
           showsVerticalScrollIndicator={false}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          ItemSeparatorComponent={isTablet ? undefined : () => <View style={styles.separator} />}
         />
       )}
     </View>
@@ -161,6 +170,15 @@ const styles = StyleSheet.create({
   },
   articleCard: {
     backgroundColor: COLORS.white,
+  },
+  articleCardTablet: {
+    borderRadius: 12,
+    overflow: 'hidden',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   articleImage: {
     width: '100%',

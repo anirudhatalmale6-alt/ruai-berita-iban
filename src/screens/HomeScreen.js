@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -26,6 +27,9 @@ const formatDate = (dateStr) => {
 };
 
 const HomeScreen = ({ navigation }) => {
+  const { width } = useWindowDimensions();
+  const isTablet = width >= 600;
+  const numColumns = isTablet ? 2 : 1;
   const [posts, setPosts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -124,14 +128,14 @@ const HomeScreen = ({ navigation }) => {
   );
 
   const renderArticle = ({ item, index }) => (
-    <View>
-      {index > 0 && index % 3 === 0 && (
+    <View style={isTablet ? { flex: 1/numColumns, paddingHorizontal: 6 } : undefined}>
+      {!isTablet && index > 0 && index % 3 === 0 && (
         <View style={styles.adContainer}>
           <AdBanner />
         </View>
       )}
       <TouchableOpacity
-        style={styles.articleCard}
+        style={[styles.articleCard, isTablet && styles.articleCardTablet]}
         onPress={() => {
           showInterstitialAd();
           navigation.navigate('Article', { article: item });
@@ -139,14 +143,14 @@ const HomeScreen = ({ navigation }) => {
         activeOpacity={0.9}
       >
       {item.image ? (
-        <Image source={{ uri: item.image }} style={styles.articleImage} />
+        <Image source={{ uri: item.image }} style={[styles.articleImage, isTablet && styles.articleImageTablet]} />
       ) : (
-        <View style={[styles.articleImage, styles.placeholderImage]}>
+        <View style={[styles.articleImage, styles.placeholderImage, isTablet && styles.articleImageTablet]}>
           <Text style={styles.placeholderText}>RBI</Text>
         </View>
       )}
       <View style={styles.articleContent}>
-        <Text style={styles.articleTitle} numberOfLines={3}>{item.title}</Text>
+        <Text style={[styles.articleTitle, isTablet && { fontSize: 16 }]} numberOfLines={3}>{item.title}</Text>
         <Text style={styles.articleExcerpt} numberOfLines={2}>{item.excerpt}</Text>
         <View style={styles.articleMeta}>
           <Text style={styles.articleCategory}>
@@ -191,12 +195,15 @@ const HomeScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <FlatList
+        key={numColumns}
         ref={flatListRef}
         data={posts}
         renderItem={renderArticle}
         keyExtractor={(item) => item.id.toString()}
+        numColumns={numColumns}
         ListHeaderComponent={renderHeader}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[styles.listContent, isTablet && { paddingHorizontal: 10 }]}
+        columnWrapperStyle={isTablet ? { marginBottom: 12 } : undefined}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -209,7 +216,7 @@ const HomeScreen = ({ navigation }) => {
         onEndReachedThreshold={0.3}
         ListFooterComponent={renderFooter}
         showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        ItemSeparatorComponent={isTablet ? undefined : () => <View style={styles.separator} />}
       />
 
       {showMenu && (
@@ -345,9 +352,21 @@ const styles = StyleSheet.create({
   articleCard: {
     backgroundColor: COLORS.white,
   },
+  articleCardTablet: {
+    borderRadius: 12,
+    overflow: 'hidden',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
   articleImage: {
     width: '100%',
     height: 220,
+  },
+  articleImageTablet: {
+    height: 180,
   },
   placeholderImage: {
     backgroundColor: COLORS.darkGray,
