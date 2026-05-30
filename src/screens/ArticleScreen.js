@@ -103,20 +103,21 @@ const ArticleScreen = ({ route, navigation }) => {
 
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={[styles.content, isTablet && { alignItems: 'center' }]}
+        contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
         {heroUrl ? (
-          <TouchableOpacity activeOpacity={0.9} onPress={() => setZoomImage(zoomUrl)}>
-            <Image
-              source={{ uri: heroUrl }}
-              style={[styles.heroImage, isTablet && { maxWidth: 680, alignSelf: 'center', borderRadius: 12, marginTop: 16 }]}
-              resizeMode="cover"
-            />
-          </TouchableOpacity>
+          <View style={isTablet ? styles.heroContainerTablet : undefined}>
+            <TouchableOpacity activeOpacity={0.9} onPress={() => setZoomImage(zoomUrl)}>
+              <Image
+                source={{ uri: heroUrl }}
+                style={[styles.heroImage, isTablet && styles.heroImageTablet]}
+              />
+            </TouchableOpacity>
+          </View>
         ) : null}
 
-        <View style={[styles.articleContent, isTablet && { maxWidth: 680, width: '100%' }]}>
+        <View style={[styles.articleContent, isTablet && styles.articleContentTablet]}>
           <Text style={styles.title}>{article.title}</Text>
 
           <View style={styles.metaContainer}>
@@ -213,8 +214,22 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 240,
   },
+  heroContainerTablet: {
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  heroImageTablet: {
+    width: 680,
+    height: 380,
+    borderRadius: 12,
+  },
   articleContent: {
     padding: SIZES.padding,
+  },
+  articleContentTablet: {
+    maxWidth: 680,
+    alignSelf: 'center',
+    width: '100%',
   },
   title: {
     fontSize: 22,
