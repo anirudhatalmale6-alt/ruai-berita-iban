@@ -20,11 +20,24 @@ const decodeHTML = (html) => {
 const extractImageUrl = (post) => {
   if (post.uagb_featured_image_src) {
     const sizes = post.uagb_featured_image_src;
-    if (sizes.full && sizes.full[0]) return sizes.full[0];
     if (sizes.large && sizes.large[0]) return sizes.large[0];
     if (sizes['medium_large'] && sizes['medium_large'][0]) return sizes['medium_large'][0];
+    if (sizes.full && sizes.full[0]) return sizes.full[0];
     if (sizes.medium && sizes.medium[0]) return sizes.medium[0];
     if (sizes.thumbnail && sizes.thumbnail[0]) return sizes.thumbnail[0];
+  }
+  if (post._embedded && post._embedded['wp:featuredmedia']) {
+    const media = post._embedded['wp:featuredmedia'][0];
+    if (media && media.source_url) return media.source_url;
+  }
+  return null;
+};
+
+const extractFullImageUrl = (post) => {
+  if (post.uagb_featured_image_src) {
+    const sizes = post.uagb_featured_image_src;
+    if (sizes.full && sizes.full[0]) return sizes.full[0];
+    if (sizes.large && sizes.large[0]) return sizes.large[0];
   }
   if (post._embedded && post._embedded['wp:featuredmedia']) {
     const media = post._embedded['wp:featuredmedia'][0];
@@ -40,6 +53,7 @@ const formatPost = (post) => ({
   content: post.content?.rendered || '',
   date: post.date,
   image: extractImageUrl(post),
+  imageFull: extractFullImageUrl(post),
   link: post.link,
   categories: post.categories || [],
   author: post.uagb_author_info?.display_name || 'RBI',

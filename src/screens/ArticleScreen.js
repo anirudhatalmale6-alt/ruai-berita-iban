@@ -33,8 +33,8 @@ const ArticleScreen = ({ route, navigation }) => {
 
   const allImages = useMemo(() => {
     const imgs = [];
-    if (article.image) {
-      imgs.push({ uri: article.image });
+    if (article.imageFull || article.image) {
+      imgs.push({ uri: article.imageFull || article.image });
     }
     if (article.content) {
       const imgRegex = /<img[^>]+src=["']([^"']+)["']/gi;
@@ -125,7 +125,7 @@ const ArticleScreen = ({ route, navigation }) => {
         showsVerticalScrollIndicator={false}
       >
         {article.image && (
-          <TouchableOpacity activeOpacity={0.9} onPress={() => openImageViewer(article.image)}>
+          <TouchableOpacity activeOpacity={0.9} onPress={() => openImageViewer(article.imageFull || article.image)}>
             <Image source={{ uri: article.image }} style={[styles.heroImage, isTablet && { maxWidth: 680, alignSelf: 'center', borderRadius: 12, marginTop: 16 }]} />
           </TouchableOpacity>
         )}
