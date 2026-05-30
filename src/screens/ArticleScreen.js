@@ -107,14 +107,12 @@ const ArticleScreen = ({ route, navigation }) => {
         showsVerticalScrollIndicator={false}
       >
         {heroUrl ? (
-          <View style={isTablet ? styles.heroContainerTablet : undefined}>
-            <TouchableOpacity activeOpacity={0.9} onPress={() => setZoomImage(zoomUrl)}>
-              <Image
-                source={{ uri: heroUrl }}
-                style={[styles.heroImage, isTablet && styles.heroImageTablet]}
-              />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity activeOpacity={0.9} onPress={() => setZoomImage(zoomUrl)}>
+            <Image
+              source={{ uri: heroUrl }}
+              style={[styles.heroImage, isTablet && styles.heroImageTablet]}
+            />
+          </TouchableOpacity>
         ) : null}
 
         <View style={[styles.articleContent, isTablet && styles.articleContentTablet]}>
@@ -214,14 +212,8 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 240,
   },
-  heroContainerTablet: {
-    alignItems: 'center',
-    marginTop: 16,
-  },
   heroImageTablet: {
-    width: 680,
-    height: 380,
-    borderRadius: 12,
+    height: 400,
   },
   articleContent: {
     padding: SIZES.padding,
