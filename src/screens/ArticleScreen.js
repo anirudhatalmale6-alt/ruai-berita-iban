@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import RenderHtml from 'react-native-render-html';
+import ImageViewing from 'react-native-image-viewing';
 import AdBanner from '../components/AdBanner';
 import { COLORS, SIZES } from '../constants/theme';
 
@@ -27,6 +28,41 @@ const ArticleScreen = ({ route, navigation }) => {
   const isTablet = width >= 600;
   const maxContentWidth = isTablet ? 680 : width;
   const contentWidth = maxContentWidth - SIZES.padding * 2;
+  const [imageViewerVisible, setImageViewerVisible] = useState(false);
+  const [imageViewerIndex, setImageViewerIndex] = useState(0);
+
+  const allImages = useMemo(() => {
+    const imgs = [];
+    if (article.image) {
+      imgs.push({ uri: article.image });
+    }
+    if (article.content) {
+      const imgRegex = /<img[^>]+src=["']([^"']+)["']/gi;
+      let match;
+      while ((match = imgRegex.exec(article.content)) !== null) {
+        imgs.push({ uri: match[1] });
+      }
+    }
+    return imgs;
+  }, [article]);
+
+  const openImageViewer = useCallback((uri) => {
+    const idx = allImages.findIndex(img => img.uri === uri);
+    setImageViewerIndex(idx >= 0 ? idx : 0);
+    setImageViewerVisible(true);
+  }, [allImages]);
+
+  const renderers = useMemo(() => ({
+    img: ({ tnode }) => {
+      const src = tnode.attributes?.src;
+      if (!src) return null;
+      return (
+        <TouchableOpacity activeOpacity={0.9} onPress={() => openImageViewer(src)}>
+          <Image source={{ uri: src }} style={{ width: contentWidth, height: contentWidth * 0.6, borderRadius: 8 }} resizeMode="cover" />
+        </TouchableOpacity>
+      );
+    },
+  }), [contentWidth, openImageViewer]);
 
   const tagsStyles = {
     body: {
@@ -89,7 +125,9 @@ const ArticleScreen = ({ route, navigation }) => {
         showsVerticalScrollIndicator={false}
       >
         {article.image && (
-          <Image source={{ uri: article.image }} style={[styles.heroImage, isTablet && { maxWidth: 680, alignSelf: 'center', borderRadius: 12, marginTop: 16 }]} />
+          <TouchableOpacity activeOpacity={0.9} onPress={() => openImageViewer(article.image)}>
+            <Image source={{ uri: article.image }} style={[styles.heroImage, isTablet && { maxWidth: 680, alignSelf: 'center', borderRadius: 12, marginTop: 16 }]} />
+          </TouchableOpacity>
         )}
 
         <View style={[styles.articleContent, isTablet && { maxWidth: 680, width: '100%' }]}>
@@ -112,6 +150,7 @@ const ArticleScreen = ({ route, navigation }) => {
             contentWidth={contentWidth}
             source={{ html: article.content }}
             tagsStyles={tagsStyles}
+            renderers={renderers}
             enableExperimentalMarginCollapsing={true}
           />
 
@@ -120,6 +159,15 @@ const ArticleScreen = ({ route, navigation }) => {
           </View>
         </View>
       </ScrollView>
+
+      <ImageViewing
+        images={allImages}
+        imageIndex={imageViewerIndex}
+        visible={imageViewerVisible}
+        onRequestClose={() => setImageViewerVisible(false)}
+        swipeToCloseEnabled={true}
+        doubleTapToZoomEnabled={true}
+      />
     </View>
   );
 };
