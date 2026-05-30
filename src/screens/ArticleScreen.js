@@ -86,8 +86,9 @@ const ArticleScreen = ({ route, navigation }) => {
     }
   };
 
-  const heroUrl = article.image;
-  const zoomUrl = article.imageUrls?.[article.imageUrls.length - 1] || article.image;
+  const fullUrl = article.imageUrls?.[article.imageUrls.length - 1] || article.image;
+  const heroUrl = fullUrl;
+  const zoomUrl = fullUrl;
 
   return (
     <View style={styles.container}>
