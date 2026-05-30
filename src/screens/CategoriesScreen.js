@@ -11,7 +11,6 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import LoadingSpinner from '../components/LoadingSpinner';
-import FallbackImage from '../components/FallbackImage';
 import { fetchCategories, fetchPosts } from '../services/api';
 import { COLORS, SIZES } from '../constants/theme';
 
@@ -110,10 +109,13 @@ const CategoriesScreen = ({ navigation }) => {
         onPress={() => navigation.navigate('Article', { article: item })}
         activeOpacity={0.9}
       >
-        <FallbackImage
-          urls={item.imageUrls}
-          style={[styles.articleImage, isTablet && { height: 160 }]}
-        />
+        {item.image ? (
+          <Image source={{ uri: item.image }} style={[styles.articleImage, isTablet && { height: 160 }]} />
+        ) : (
+          <View style={[styles.articleImage, styles.placeholderImage, isTablet && { height: 160 }]}>
+            <Text style={styles.placeholderText}>RBI</Text>
+          </View>
+        )}
         <View style={styles.articleContent}>
           <Text style={[styles.articleTitle, isTablet && { fontSize: 15 }]} numberOfLines={3}>{item.title}</Text>
           <Text style={styles.articleExcerpt} numberOfLines={2}>{item.excerpt}</Text>

@@ -12,7 +12,6 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import LoadingSpinner from '../components/LoadingSpinner';
 import AdBanner from '../components/AdBanner';
-import FallbackImage from '../components/FallbackImage';
 import { fetchPosts, fetchCategories } from '../services/api';
 import { showInterstitialAd } from '../services/ads';
 import { COLORS, SIZES } from '../constants/theme';
@@ -143,10 +142,13 @@ const HomeScreen = ({ navigation }) => {
         }}
         activeOpacity={0.9}
       >
-      <FallbackImage
-        urls={item.imageUrls}
-        style={[styles.articleImage, isTablet && styles.articleImageTablet]}
-      />
+      {item.image ? (
+        <Image source={{ uri: item.image }} style={[styles.articleImage, isTablet && styles.articleImageTablet]} />
+      ) : (
+        <View style={[styles.articleImage, styles.placeholderImage, isTablet && styles.articleImageTablet]}>
+          <Text style={styles.placeholderText}>RBI</Text>
+        </View>
+      )}
       <View style={styles.articleContent}>
         <Text style={[styles.articleTitle, isTablet && { fontSize: 16 }]} numberOfLines={3}>{item.title}</Text>
         <Text style={styles.articleExcerpt} numberOfLines={2}>{item.excerpt}</Text>

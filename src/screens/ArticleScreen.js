@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,13 +7,13 @@ import {
   TouchableOpacity,
   StyleSheet,
   Share,
+  Modal,
+  StatusBar,
   useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import RenderHtml from 'react-native-render-html';
-import ImageViewing from 'react-native-image-viewing';
 import AdBanner from '../components/AdBanner';
-import FallbackImage from '../components/FallbackImage';
 import { COLORS, SIZES } from '../constants/theme';
 
 const formatDate = (dateStr) => {
@@ -25,46 +25,11 @@ const formatDate = (dateStr) => {
 
 const ArticleScreen = ({ route, navigation }) => {
   const { article } = route.params;
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const isTablet = width >= 600;
   const maxContentWidth = isTablet ? 680 : width;
   const contentWidth = maxContentWidth - SIZES.padding * 2;
-  const [imageViewerVisible, setImageViewerVisible] = useState(false);
-  const [imageViewerIndex, setImageViewerIndex] = useState(0);
-
-  const allImages = useMemo(() => {
-    const imgs = [];
-    const lastUrl = article.imageUrls?.[article.imageUrls.length - 1] || article.image;
-    if (lastUrl) {
-      imgs.push({ uri: lastUrl });
-    }
-    if (article.content) {
-      const imgRegex = /<img[^>]+src=["']([^"']+)["']/gi;
-      let match;
-      while ((match = imgRegex.exec(article.content)) !== null) {
-        imgs.push({ uri: match[1] });
-      }
-    }
-    return imgs;
-  }, [article]);
-
-  const openImageViewer = useCallback((uri) => {
-    const idx = allImages.findIndex(img => img.uri === uri);
-    setImageViewerIndex(idx >= 0 ? idx : 0);
-    setImageViewerVisible(true);
-  }, [allImages]);
-
-  const renderers = useMemo(() => ({
-    img: ({ tnode }) => {
-      const src = tnode.attributes?.src;
-      if (!src) return null;
-      return (
-        <TouchableOpacity activeOpacity={0.9} onPress={() => openImageViewer(src)}>
-          <Image source={{ uri: src }} style={{ width: contentWidth, height: contentWidth * 0.6, borderRadius: 8 }} resizeMode="cover" />
-        </TouchableOpacity>
-      );
-    },
-  }), [contentWidth, openImageViewer]);
+  const [zoomImage, setZoomImage] = useState(null);
 
   const tagsStyles = {
     body: {
@@ -97,6 +62,18 @@ const ArticleScreen = ({ route, navigation }) => {
     },
   };
 
+  const renderers = {
+    img: ({ tnode }) => {
+      const src = tnode.attributes?.src;
+      if (!src) return null;
+      return (
+        <TouchableOpacity activeOpacity={0.9} onPress={() => setZoomImage(src)}>
+          <Image source={{ uri: src }} style={{ width: contentWidth, height: contentWidth * 0.6, borderRadius: 8 }} resizeMode="cover" />
+        </TouchableOpacity>
+      );
+    },
+  };
+
   const handleShare = async () => {
     try {
       await Share.share({
@@ -108,6 +85,9 @@ const ArticleScreen = ({ route, navigation }) => {
       // silently fail
     }
   };
+
+  const heroUrl = article.image;
+  const zoomUrl = article.imageUrls?.[article.imageUrls.length - 1] || article.image;
 
   return (
     <View style={styles.container}>
@@ -126,14 +106,15 @@ const ArticleScreen = ({ route, navigation }) => {
         contentContainerStyle={[styles.content, isTablet && { alignItems: 'center' }]}
         showsVerticalScrollIndicator={false}
       >
-        {article.image && (
-          <TouchableOpacity activeOpacity={0.9} onPress={() => { setImageViewerIndex(0); setImageViewerVisible(true); }}>
-            <FallbackImage
-              urls={article.imageUrls}
+        {heroUrl ? (
+          <TouchableOpacity activeOpacity={0.9} onPress={() => setZoomImage(zoomUrl)}>
+            <Image
+              source={{ uri: heroUrl }}
               style={[styles.heroImage, isTablet && { maxWidth: 680, alignSelf: 'center', borderRadius: 12, marginTop: 16 }]}
+              resizeMode="cover"
             />
           </TouchableOpacity>
-        )}
+        ) : null}
 
         <View style={[styles.articleContent, isTablet && { maxWidth: 680, width: '100%' }]}>
           <Text style={styles.title}>{article.title}</Text>
@@ -165,14 +146,28 @@ const ArticleScreen = ({ route, navigation }) => {
         </View>
       </ScrollView>
 
-      <ImageViewing
-        images={allImages}
-        imageIndex={imageViewerIndex}
-        visible={imageViewerVisible}
-        onRequestClose={() => setImageViewerVisible(false)}
-        swipeToCloseEnabled={true}
-        doubleTapToZoomEnabled={true}
-      />
+      <Modal visible={!!zoomImage} transparent animationType="fade" onRequestClose={() => setZoomImage(null)}>
+        <StatusBar backgroundColor="#000" barStyle="light-content" />
+        <View style={styles.zoomOverlay}>
+          <TouchableOpacity style={styles.zoomClose} onPress={() => setZoomImage(null)}>
+            <Ionicons name="close" size={28} color="#fff" />
+          </TouchableOpacity>
+          <ScrollView
+            contentContainerStyle={styles.zoomScrollContent}
+            maximumZoomScale={5}
+            minimumZoomScale={1}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            bouncesZoom={true}
+          >
+            <Image
+              source={{ uri: zoomImage }}
+              style={{ width: width, height: width * 0.6 }}
+              resizeMode="contain"
+            />
+          </ScrollView>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -249,6 +244,28 @@ const styles = StyleSheet.create({
   },
   adContainer: {
     marginTop: 20,
+    alignItems: 'center',
+  },
+  zoomOverlay: {
+    flex: 1,
+    backgroundColor: '#000',
+    justifyContent: 'center',
+  },
+  zoomClose: {
+    position: 'absolute',
+    top: 50,
+    right: 16,
+    zIndex: 10,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  zoomScrollContent: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
   },
 });
