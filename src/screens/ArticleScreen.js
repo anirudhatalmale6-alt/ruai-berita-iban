@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import RenderHtml from 'react-native-render-html';
 import ImageViewing from 'react-native-image-viewing';
 import AdBanner from '../components/AdBanner';
+import FallbackImage from '../components/FallbackImage';
 import { COLORS, SIZES } from '../constants/theme';
 
 const formatDate = (dateStr) => {
@@ -33,8 +34,9 @@ const ArticleScreen = ({ route, navigation }) => {
 
   const allImages = useMemo(() => {
     const imgs = [];
-    if (article.imageFull || article.image) {
-      imgs.push({ uri: article.imageFull || article.image });
+    const lastUrl = article.imageUrls?.[article.imageUrls.length - 1] || article.image;
+    if (lastUrl) {
+      imgs.push({ uri: lastUrl });
     }
     if (article.content) {
       const imgRegex = /<img[^>]+src=["']([^"']+)["']/gi;
@@ -125,8 +127,11 @@ const ArticleScreen = ({ route, navigation }) => {
         showsVerticalScrollIndicator={false}
       >
         {article.image && (
-          <TouchableOpacity activeOpacity={0.9} onPress={() => openImageViewer(article.imageFull || article.image)}>
-            <Image source={{ uri: article.image }} style={[styles.heroImage, isTablet && { maxWidth: 680, alignSelf: 'center', borderRadius: 12, marginTop: 16 }]} />
+          <TouchableOpacity activeOpacity={0.9} onPress={() => { setImageViewerIndex(0); setImageViewerVisible(true); }}>
+            <FallbackImage
+              urls={article.imageUrls}
+              style={[styles.heroImage, isTablet && { maxWidth: 680, alignSelf: 'center', borderRadius: 12, marginTop: 16 }]}
+            />
           </TouchableOpacity>
         )}
 

@@ -17,48 +17,49 @@ const decodeHTML = (html) => {
     .replace(/<[^>]*>/g, '');
 };
 
-const extractImageUrl = (post) => {
-  if (post.uagb_featured_image_src) {
-    const sizes = post.uagb_featured_image_src;
-    if (sizes['medium_large'] && sizes['medium_large'][0]) return sizes['medium_large'][0];
-    if (sizes.large && sizes.large[0]) return sizes.large[0];
-    if (sizes.medium && sizes.medium[0]) return sizes.medium[0];
-    if (sizes.full && sizes.full[0]) return sizes.full[0];
-    if (sizes.thumbnail && sizes.thumbnail[0]) return sizes.thumbnail[0];
-  }
+const extractImages = (post) => {
+  const urls = [];
+  const seen = new Set();
+  const add = (url) => { if (url && !seen.has(url)) { seen.add(url); urls.push(url); } };
+
   if (post._embedded && post._embedded['wp:featuredmedia']) {
     const media = post._embedded['wp:featuredmedia'][0];
-    if (media && media.source_url) return media.source_url;
+    if (media) {
+      const sizes = media.media_details?.sizes || {};
+      if (sizes.medium_large) add(sizes.medium_large.source_url);
+      if (sizes.medium) add(sizes.medium.source_url);
+      if (sizes.large) add(sizes.large.source_url);
+      add(media.source_url);
+    }
   }
-  return null;
-};
 
-const extractFullImageUrl = (post) => {
   if (post.uagb_featured_image_src) {
     const sizes = post.uagb_featured_image_src;
-    if (sizes.full && sizes.full[0]) return sizes.full[0];
-    if (sizes.large && sizes.large[0]) return sizes.large[0];
+    if (sizes['medium_large'] && sizes['medium_large'][0]) add(sizes['medium_large'][0]);
+    if (sizes.medium && sizes.medium[0]) add(sizes.medium[0]);
+    if (sizes.large && sizes.large[0]) add(sizes.large[0]);
+    if (sizes.full && sizes.full[0]) add(sizes.full[0]);
   }
-  if (post._embedded && post._embedded['wp:featuredmedia']) {
-    const media = post._embedded['wp:featuredmedia'][0];
-    if (media && media.source_url) return media.source_url;
-  }
-  return null;
+
+  return urls;
 };
 
-const formatPost = (post) => ({
-  id: post.id,
-  title: decodeHTML(post.title?.rendered || ''),
-  excerpt: decodeHTML(post.excerpt?.rendered || ''),
-  content: post.content?.rendered || '',
-  date: post.date,
-  image: extractImageUrl(post),
-  imageFull: extractFullImageUrl(post),
-  link: post.link,
-  categories: post.categories || [],
-  author: post.uagb_author_info?.display_name || 'RBI',
-  views: post.post_views_count || 0,
-});
+const formatPost = (post) => {
+  const imgs = extractImages(post);
+  return {
+    id: post.id,
+    title: decodeHTML(post.title?.rendered || ''),
+    excerpt: decodeHTML(post.excerpt?.rendered || ''),
+    content: post.content?.rendered || '',
+    date: post.date,
+    image: imgs[0] || null,
+    imageUrls: imgs,
+    link: post.link,
+    categories: post.categories || [],
+    author: post.uagb_author_info?.display_name || 'RBI',
+    views: post.post_views_count || 0,
+  };
+};
 
 export const fetchPosts = async (page = 1, perPage = 10, categoryId = null, search = null) => {
   let url = `${API_BASE}/posts?page=${page}&per_page=${perPage}&_embed`;
